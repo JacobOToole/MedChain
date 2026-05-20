@@ -58,7 +58,7 @@ contract AccessControl {
     }
 
     function checkAccess(address patient, address provider) external view returns(bool) {
-        return permissions[patient][provider];
+        return permissions[patient][provider] && providerRegistry.isActiveProvider(provider);
     }
 
 }

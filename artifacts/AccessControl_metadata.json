@@ -194,11 +194,11 @@
 	},
 	"sources": {
 		"contracts/AccessControl.sol": {
-			"keccak256": "0x97d19ecd382abfb107b4285532864bf978c40b7fd13bc9f5e3ddfc6be07febcf",
+			"keccak256": "0xaf6a78f855073887b30642439768ede50aeb128662e764616dc9f75c8a89a244",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://9fbb22cf7ad4b642fdb58f5446f17bc19130f35032fa4063b2442966e00ae1bc",
-				"dweb:/ipfs/QmcJ1owN7YMwigowdCb73PKy1s1RYPWKGpjcHEojQURg4Z"
+				"bzz-raw://4e58afa54a53d2d814973809f6373e116280b372e5da18d645902f38db4278d8",
+				"dweb:/ipfs/QmbBZY5b4Ry7VJJ2rPS39Dpx3gfp9q2mAKSMaKG7BiBThj"
 			]
 		}
 	},

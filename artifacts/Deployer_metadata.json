@@ -1,0 +1,213 @@
+{
+	"compiler": {
+		"version": "0.8.30+commit.73712a01"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_hospitalAdmin",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"inputs": [],
+				"name": "accessControl",
+				"outputs": [
+					{
+						"internalType": "contract AccessControl",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "auditLog",
+				"outputs": [
+					{
+						"internalType": "contract AuditLog",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "hospitalAdmin",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "patientRegistry",
+				"outputs": [
+					{
+						"internalType": "contract PatientRegistry",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "providerRegistry",
+				"outputs": [
+					{
+						"internalType": "contract ProviderRegistry",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "recordManager",
+				"outputs": [
+					{
+						"internalType": "contract RecordManager",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "systemStatus",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "_hospitalAdmin",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_auditLogOwner",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_patientCount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_providerCount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_recordCount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_auditLogCount",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/Deployer.sol": "Deployer"
+		},
+		"evmVersion": "prague",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"contracts/AccessControl.sol": {
+			"keccak256": "0xaf6a78f855073887b30642439768ede50aeb128662e764616dc9f75c8a89a244",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://4e58afa54a53d2d814973809f6373e116280b372e5da18d645902f38db4278d8",
+				"dweb:/ipfs/QmbBZY5b4Ry7VJJ2rPS39Dpx3gfp9q2mAKSMaKG7BiBThj"
+			]
+		},
+		"contracts/AuditLog.sol": {
+			"keccak256": "0x2472fc11d9f9fa78f3757407c78520fc7f773c24f3c26501c3ac88d3deb4de8d",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://302da7ac5e277f3aa47b6b0f113ecda4b7d7de552589c487c9e7a6efabcd81e6",
+				"dweb:/ipfs/QmcEgzLcg3feyWQokZKBhXpRUZV6oC51NiKMiHwABg6mqd"
+			]
+		},
+		"contracts/Deployer.sol": {
+			"keccak256": "0x72c9d10b63b8ac41913cee66b1f4e32ec23e74fed543a81d48a51ee4a5ff83a6",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://c45a11e13be2270aecf35ef7cd299118b9fdff9642b539a3d8c909dce6c5ab1d",
+				"dweb:/ipfs/Qmdrb4bbxP1aK4ju2EXffKygGHDKSJ4g7U9t6sqnovubrX"
+			]
+		},
+		"contracts/PatientRegistry.sol": {
+			"keccak256": "0x18b40ec248a3fc4d6b0a9d12f8be33cf4a86819ec5127f7e2ed9fd958109b099",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://89991e4251d08fe539b1f6b369bb4dcd231af48016253076b1d8b60350dfd5cd",
+				"dweb:/ipfs/QmY6cwvtWwdacJ52nVx7vqCX24ehKRKVcgSginiTNjoHr9"
+			]
+		},
+		"contracts/ProviderRegistry.sol": {
+			"keccak256": "0x7b041a887b2c3223c226b3b7f1279d90c033e2cfd917272cfde1b34ccc5dbbe9",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://cec01b40fc11461ca4229d82cd8df3832650a8eeb6c4adb6f5f77a455794162d",
+				"dweb:/ipfs/QmP1n8ZuooPcrUqk83Wjq94qEDLzN6FMCDLpXpHuBiJLi5"
+			]
+		},
+		"contracts/RecordManager.sol": {
+			"keccak256": "0x8d79ec6a31dce13e9593f0dc4eb23431df7207e2b0ed88c12d05d8968b337add",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://0a41a7c0551da36b7e23c70b4dd73abb483723c8bd83a1ed5aba70211742c40d",
+				"dweb:/ipfs/QmeMXG5rMb2VFSZuqmjdpTDE9aQAvwpDb6vMrVMkNw8tFG"
+			]
+		}
+	},
+	"version": 1
+}

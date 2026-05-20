@@ -5,13 +5,13 @@ interface IAccessControl {
     function checkAccess(address patient, address provider) external view returns (bool);
 }
 
-interface IAuditLog {
+interface IAuditLogRM {
     function logEvent(address actor, address subject, address counterparty, string calldata action) external;
 }
 
 contract RecordManager {
     IAccessControl public accessControl;
-    IAuditLog    public auditLog;
+    IAuditLogRM    public auditLog;
 
     // Comments suggest potential fields... look into these if enough time
     struct Record {
@@ -44,7 +44,7 @@ contract RecordManager {
         require(_accessControl != address(0), "RecordManager: zero accessControl");
         require(_auditLog != address(0), "RecordManager: zero auditLog");
         accessControl = IAccessControl(_accessControl);
-        auditLog      = IAuditLog(_auditLog);
+        auditLog      = IAuditLogRM(_auditLog);
     }
 
     // TODO: functions
