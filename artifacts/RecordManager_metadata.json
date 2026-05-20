@@ -22,6 +22,74 @@
 				"type": "constructor"
 			},
 			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "uint256",
+						"name": "newId",
+						"type": "uint256"
+					},
+					{
+						"indexed": true,
+						"internalType": "uint256",
+						"name": "previousId",
+						"type": "uint256"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "patient",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "cid",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "RecordUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "patient",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "provider",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "cid",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "RecordUploaded",
+				"type": "event"
+			},
+			{
 				"inputs": [],
 				"name": "accessControl",
 				"outputs": [
@@ -39,12 +107,124 @@
 				"name": "auditLog",
 				"outputs": [
 					{
-						"internalType": "contract IAuditLogRM",
+						"internalType": "contract IAuditLog",
 						"name": "",
 						"type": "address"
 					}
 				],
 				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					}
+				],
+				"name": "getRecord",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "provider",
+								"type": "address"
+							},
+							{
+								"internalType": "address",
+								"name": "patient",
+								"type": "address"
+							},
+							{
+								"internalType": "string",
+								"name": "cid",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "timestamp",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "previousVersion",
+								"type": "uint256"
+							},
+							{
+								"internalType": "bool",
+								"name": "superseded",
+								"type": "bool"
+							}
+						],
+						"internalType": "struct RecordManager.Record",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "recordCount",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "previousId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "cid",
+						"type": "string"
+					}
+				],
+				"name": "updateRecord",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "patient",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "cid",
+						"type": "string"
+					}
+				],
+				"name": "uploadRecord",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "nonpayable",
 				"type": "function"
 			}
 		],
@@ -76,11 +256,11 @@
 	},
 	"sources": {
 		"contracts/RecordManager.sol": {
-			"keccak256": "0x0cb0dff6d0e59cd1baeaba0cf5cad4ef27d50332f3e77c2310369b7b11956924",
+			"keccak256": "0x9d9c992646530af5027a2addfc962ef3c1509daf7edf4c0e7305e4caa8a73ef7",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://121b8e73a4dbb2b849b4dc42ae8fd83ca5fce927f62e02c7d5a45acad1e16f01",
-				"dweb:/ipfs/Qmcqjvime3VxBUVrLwZrdV9BEyZdPEEPUWvRjeVxkaSZYL"
+				"bzz-raw://8b269a77290cb94b477eaab57a3fe838b500152412de5fbe5f2042f24f1eeb1d",
+				"dweb:/ipfs/QmVbQ7YUgmfkZHCWAkAqiWMHy3j6kfLiUH3QpEX6QsFVET"
 			]
 		}
 	},
