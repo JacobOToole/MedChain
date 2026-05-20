@@ -101,7 +101,22 @@ contract AuditLog {
         return result;
     }
 
-    // MAYBE: getLogsForId, getLogsForCounterparty
-    // ^^ more useful audit trail if we have time
+    function getLogsForParty(address party) external view returns (LogEntry[] memory) {
+        // Count how many logs there are related to counterparty
+        uint256 count = 0;
+        for (uint256 i = 0; i < logs.length; i++) {
+            if (logs[i].actor == party || logs[i].counterparty == party) count++;
+        }
 
+        LogEntry[] memory result = new LogEntry[](count);
+
+        uint256 j = 0;
+        for (uint256 i = 0; i < logs.length; i++) {
+            if (logs[i].actor == party || logs[i].counterparty == party) {
+                result[j] = logs[i];
+                j++;
+            }
+        }
+        return result;
+    }
 }

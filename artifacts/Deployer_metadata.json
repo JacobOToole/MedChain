@@ -177,11 +177,11 @@
 			]
 		},
 		"contracts/Deployer.sol": {
-			"keccak256": "0x72c9d10b63b8ac41913cee66b1f4e32ec23e74fed543a81d48a51ee4a5ff83a6",
+			"keccak256": "0x06165be9907b2ea655369fc7c0dddf61800f7bc85ac8a70d69fcad4c73ec0072",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://c45a11e13be2270aecf35ef7cd299118b9fdff9642b539a3d8c909dce6c5ab1d",
-				"dweb:/ipfs/Qmdrb4bbxP1aK4ju2EXffKygGHDKSJ4g7U9t6sqnovubrX"
+				"bzz-raw://717917296e306af920a333dbace741626bafe0eaa40e07a092234e0da28e280a",
+				"dweb:/ipfs/Qmbwp1V9qEhF3ziwqL3pqGxrKpEqaFw95ZBM5dCUmEExZf"
 			]
 		},
 		"contracts/PatientRegistry.sol": {
@@ -201,11 +201,11 @@
 			]
 		},
 		"contracts/RecordManager.sol": {
-			"keccak256": "0x8d79ec6a31dce13e9593f0dc4eb23431df7207e2b0ed88c12d05d8968b337add",
+			"keccak256": "0x5f2d4f96babecc291f86acbe068d1818e3b9253ad2f0d594b8707f32a3861a74",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://0a41a7c0551da36b7e23c70b4dd73abb483723c8bd83a1ed5aba70211742c40d",
-				"dweb:/ipfs/QmeMXG5rMb2VFSZuqmjdpTDE9aQAvwpDb6vMrVMkNw8tFG"
+				"bzz-raw://8d4d753aaab4be46a4f85dad9817348f64dbca46fdac6a90edfab4f041c38c64",
+				"dweb:/ipfs/QmYMp3CibsYMPmo6rfthm9waS98ipAqqRRU7D521RcDCPJ"
 			]
 		}
 	},

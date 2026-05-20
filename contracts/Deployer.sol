@@ -36,7 +36,7 @@ contract Deployer {
             address(auditLog)
         );
 
-        // Austhrosie other contracts that need to write to it.
+        // Austhorise other contracts that need to write to it.
         auditLog.authorise(address(accessControl));
         auditLog.authorise(address(recordManager));
 

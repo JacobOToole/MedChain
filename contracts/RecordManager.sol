@@ -27,6 +27,7 @@ contract RecordManager {
     mapping(address => uint256[]) private patientRecords; // patient => record ids
 
     event RecordUploaded(
+        uint256 indexed id,
         address indexed patient,
         address indexed provider,
         string cid,
@@ -64,7 +65,7 @@ contract RecordManager {
 
         uint256 id = records.length - 1;
         patientRecords[patient].push(id);
-        emit RecordUploaded(patient, msg.sender, cid, block.timestamp);
+        emit RecordUploaded(id, patient, msg.sender, cid, block.timestamp);
         // actor = provider, subject = patient. No counterparty: address == 0
         auditLog.logEvent(msg.sender, patient, address(0), "UPLOAD_RECORD");
         return id;
