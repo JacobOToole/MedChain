@@ -22,25 +22,6 @@
 					{
 						"indexed": true,
 						"internalType": "address",
-						"name": "from",
-						"type": "address"
-					},
-					{
-						"indexed": true,
-						"internalType": "address",
-						"name": "to",
-						"type": "address"
-					}
-				],
-				"name": "AdminTransferred",
-				"type": "event"
-			},
-			{
-				"anonymous": false,
-				"inputs": [
-					{
-						"indexed": true,
-						"internalType": "address",
 						"name": "provider",
 						"type": "address"
 					},
@@ -80,6 +61,42 @@
 				"type": "event"
 			},
 			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "addr",
+						"type": "address"
+					}
+				],
+				"name": "getProvider",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "wallet",
+								"type": "address"
+							},
+							{
+								"internalType": "string",
+								"name": "name",
+								"type": "string"
+							},
+							{
+								"internalType": "bool",
+								"name": "active",
+								"type": "bool"
+							}
+						],
+						"internalType": "struct ProviderRegistry.Provider",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [],
 				"name": "hospitalAdmin",
 				"outputs": [
@@ -90,6 +107,69 @@
 					}
 				],
 				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "addr",
+						"type": "address"
+					}
+				],
+				"name": "isActiveProvider",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "providerCount",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "providerAdd",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					}
+				],
+				"name": "registerProvider",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "providerAdd",
+						"type": "address"
+					}
+				],
+				"name": "revokeProvider",
+				"outputs": [],
+				"stateMutability": "nonpayable",
 				"type": "function"
 			}
 		],
@@ -121,11 +201,11 @@
 	},
 	"sources": {
 		"contracts/ProviderRegistry.sol": {
-			"keccak256": "0x6f974668a26920cf5d004a36e5c0f6da944526cee0533bf9e433ece3194adc77",
+			"keccak256": "0x7b041a887b2c3223c226b3b7f1279d90c033e2cfd917272cfde1b34ccc5dbbe9",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://08e5863b5c949f4fba140b75769299a45a7cbc2d2d4110e8c6e8b2a6f318c8d3",
-				"dweb:/ipfs/QmbnHgPAMScGYgs7i7b7bLXbFiPFkkRYe8Bbvatohz9rkf"
+				"bzz-raw://cec01b40fc11461ca4229d82cd8df3832650a8eeb6c4adb6f5f77a455794162d",
+				"dweb:/ipfs/QmP1n8ZuooPcrUqk83Wjq94qEDLzN6FMCDLpXpHuBiJLi5"
 			]
 		}
 	},
