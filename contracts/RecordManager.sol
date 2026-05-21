@@ -112,6 +112,18 @@ contract RecordManager {
         return r;
     }
 
+    function getRecordIdsForPatient(address patient)
+        external
+        view
+        returns (uint256[] memory)
+    {
+        require(
+            msg.sender == patient || accessControl.checkAccess(patient, msg.sender),
+            "RecordManager: not authorized"
+        );
+        return patientRecords[patient];
+    }
+
     function recordCount() external view returns (uint256) {
         return records.length;
     }
