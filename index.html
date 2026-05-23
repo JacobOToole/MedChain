@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>HealthRecords dApp (scaffold)</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+        max-width: 1000px;
+      }
+      h1 {
+        font-size: 18px;
+      }
+      h3 {
+        font-size: 13px;
+        margin: 0 0 8px 0;
+        text-transform: uppercase;
+        color: #555;
+      }
+      .section {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 10px;
+      }
+      button {
+        padding: 4px 10px;
+        margin-right: 6px;
+        font-family: inherit;
+      }
+      input {
+        padding: 4px;
+        width: 420px;
+        font-family: monospace;
+      }
+      .tabs {
+        margin-top: 16px;
+        border-bottom: 1px solid #ccc;
+      }
+      .tab {
+        display: inline-block;
+        padding: 6px 12px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        border-bottom: none;
+      }
+      .tab.active {
+        border-color: #ccc;
+        background: #f5f5f5;
+        position: relative;
+        top: 1px;
+      }
+      .panel {
+        display: none;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-top: none;
+        min-height: 60px;
+      }
+      .panel.active {
+        display: block;
+      }
+      .placeholder {
+        color: #888;
+        font-style: italic;
+      }
+      pre {
+        background: #f5f5f5;
+        padding: 8px;
+        margin: 6px 0 0 0;
+        font-size: 11px;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+      #log {
+        height: 320px;
+        overflow-y: auto;
+        background: #1e1e1e;
+        color: #ddd;
+        padding: 8px;
+        font-family: monospace;
+        font-size: 11px;
+        border: 1px solid #444;
+      }
+      #log .ok {
+        color: #6fcf6f;
+      }
+      #log .bad {
+        color: #f06060;
+      }
+      #log .info {
+        color: #aaa;
+      }
+      #log .ev {
+        color: #6fbfff;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>MedChain</h1>
+
+    <!-- WALLET -->
+    <div class="section">
+      <h3>1. Wallet</h3>
+      <div>Account: <span id="account">(not connected)</span></div>
+      <div>Network: <span id="network">—</span></div>
+      <div style="margin-top: 6px">
+        <button id="connectBtn">Connect MetaMask</button>
+      </div>
+    </div>
+
+    <!-- DEPLOYED SYSTEM -->
+    <div class="section">
+      <h3>2. Deployed system</h3>
+      <div>
+        Deployer address: <input id="deployerAddr" placeholder="0x..." />
+      </div>
+      <div style="margin-top: 6px">
+        <button id="loadBtn">Load addresses</button>
+        <button id="clearBtn">Clear cache</button>
+      </div>
+      <pre id="addressList"></pre>
+    </div>
+
+    <!-- ROLE TABS -->
+    <div class="tabs">
+      <span class="tab active" data-panel="patient">Patient</span>
+      <span class="tab" data-panel="provider">Provider</span>
+      <span class="tab" data-panel="admin">Hospital Admin</span>
+      <span class="tab" data-panel="audit">Audit Log</span>
+      <span class="tab" data-panel="system">System</span>
+    </div>
+
+    <div class="panel active" id="patient">
+      <p class="placeholder">Patient panel</p>
+    </div>
+    <div class="panel" id="provider">
+      <p class="placeholder">Provider panel</p>
+    </div>
+    <div class="panel" id="admin">
+      <p class="placeholder">Hospital admin panel</p>
+    </div>
+    <div class="panel" id="audit">
+      <p class="placeholder">Audit log panel</p>
+    </div>
+    <div class="panel" id="system"><p class="placeholder">System panel</p></div>
+
+    <!-- ACTIVITY LOG -->
+    <div class="section">
+      <h3>Activity log</h3>
+      <div id="log"></div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script>
+      const DEPLOYER_ABI = [
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_hospitalAdmin",
+              type: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          inputs: [],
+          name: "accessControl",
+          outputs: [
+            {
+              internalType: "contract AccessControl",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "auditLog",
+          outputs: [
+            {
+              internalType: "contract AuditLog",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "hospitalAdmin",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "patientRegistry",
+          outputs: [
+            {
+              internalType: "contract PatientRegistry",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "providerRegistry",
+          outputs: [
+            {
+              internalType: "contract ProviderRegistry",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "recordManager",
+          outputs: [
+            {
+              internalType: "contract RecordManager",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "systemStatus",
+          outputs: [
+            {
+              internalType: "address",
+              name: "_hospitalAdmin",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "_auditLogOwner",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_patientCount",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_providerCount",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_recordCount",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_auditLogCount",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+      ];
+
+      // State
+      let provider, signer, account, network;
+      let addrs = JSON.parse(localStorage.getItem("hr_addrs") || "null");
+
+      // Logging
+      const $ = (id) => document.getElementById(id);
+
+      function ts() {
+        const d = new Date();
+        const pad = (n, l = 2) => String(n).padStart(l, "0");
+        return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}`;
+      }
+
+      function log(msg, cls = "info") {
+        const line = document.createElement("div");
+        line.className = cls;
+        line.textContent = `[${ts()}] ${msg}`;
+        $("log").prepend(line);
+        console.log(`[${cls}] ${msg}`);
+      }
+
+      function logErr(label, e) {
+        const msg = e?.error?.message || e?.reason || e?.message || String(e);
+        log(`${label}: ERROR — ${msg}`, "bad");
+        if (e?.data)
+          log(`${label}: error.data = ${JSON.stringify(e.data)}`, "bad");
+        if (e?.code) log(`${label}: error.code = ${e.code}`, "bad");
+        console.error(label, e);
+      }
+
+      // Tab switching
+      document.querySelectorAll(".tab").forEach((t) => {
+        t.addEventListener("click", () => {
+          document
+            .querySelectorAll(".tab")
+            .forEach((x) => x.classList.remove("active"));
+          document
+            .querySelectorAll(".panel")
+            .forEach((x) => x.classList.remove("active"));
+          t.classList.add("active");
+          $(t.dataset.panel).classList.add("active");
+          log(`tab switched → ${t.dataset.panel}`, "info");
+        });
+      });
+
+      // Metamask connect
+      async function connect() {
+        if (!window.ethereum) {
+          log(
+            "connect: window.ethereum is undefined — MetaMask not working",
+            "bad",
+          );
+          return;
+        }
+
+        try {
+          provider = new ethers.providers.Web3Provider(window.ethereum);
+          log("connect: created ethers.providers.Web3Provider", "ok");
+
+          const t0 = performance.now();
+          const accounts = await provider.send("eth_requestAccounts", []);
+
+          signer = provider.getSigner();
+          account = await signer.getAddress();
+          log(`connect: signer.getAddress() = ${account}`, "ok");
+
+          network = await provider.getNetwork();
+          log(
+            `connect: network = name="${network.name}" chainId=${network.chainId}`,
+            "ok",
+          );
+          if (network.chainId !== 11155111) {
+            log(
+              `connect: WARNING — chainId ${network.chainId} is not Sepolia (11155111)`,
+              "bad",
+            );
+          }
+
+          const balance = await provider.getBalance(account);
+          log(
+            `connect: balance = ${ethers.utils.formatEther(balance)} ETH`,
+            "info",
+          );
+
+          $("account").textContent = account;
+          $("network").textContent =
+            `${network.name} (chainId ${network.chainId})`;
+          log("connect: DONE", "ok");
+        } catch (e) {
+          logErr("connect", e);
+        }
+      }
+
+      // Load deployed contract addresses from the Deployer
+      async function loadAddresses() {
+        log("loadAddresses: starting…", "info");
+        const deployerAddr = $("deployerAddr").value.trim();
+        log(
+          `loadAddresses: input deployer address = "${deployerAddr}"`,
+          "info",
+        );
+
+        if (!ethers.utils.isAddress(deployerAddr)) {
+          log(`loadAddresses: invalid address — aborting`, "bad");
+          return;
+        }
+        log("loadAddresses: address passes isAddress() check", "ok");
+
+        if (!signer) {
+          log("loadAddresses: no signer yet — calling connect() first", "info");
+          await connect();
+          if (!signer) {
+            log(
+              "loadAddresses: still no signer after connect — aborting",
+              "bad",
+            );
+            return;
+          }
+        }
+
+        try {
+          log(
+            `loadAddresses: instantiating ethers.Contract at ${deployerAddr}`,
+            "info",
+          );
+          const dep = new ethers.Contract(deployerAddr, DEPLOYER_ABI, signer);
+
+          log(
+            "loadAddresses: calling 6 getters in parallel (5 children + hospitalAdmin)…",
+            "info",
+          );
+          const t0 = performance.now();
+          const [
+            auditLog,
+            patientRegistry,
+            providerRegistry,
+            accessControl,
+            recordManager,
+            hospitalAdmin,
+          ] = await Promise.all([
+            dep.auditLog().then((a) => {
+              log(`  ↳ auditLog()         = ${a}`, "ok");
+              return a;
+            }),
+            dep.patientRegistry().then((a) => {
+              log(`  ↳ patientRegistry()  = ${a}`, "ok");
+              return a;
+            }),
+            dep.providerRegistry().then((a) => {
+              log(`  ↳ providerRegistry() = ${a}`, "ok");
+              return a;
+            }),
+            dep.accessControl().then((a) => {
+              log(`  ↳ accessControl()    = ${a}`, "ok");
+              return a;
+            }),
+            dep.recordManager().then((a) => {
+              log(`  ↳ recordManager()    = ${a}`, "ok");
+              return a;
+            }),
+            dep.hospitalAdmin().then((a) => {
+              log(`  ↳ hospitalAdmin()    = ${a}`, "ok");
+              return a;
+            }),
+          ]);
+          log(
+            `loadAddresses: all getters resolved in ${Math.round(performance.now() - t0)}ms`,
+            "ok",
+          );
+
+          addrs = {
+            deployer: deployerAddr,
+            auditLog,
+            patientRegistry,
+            providerRegistry,
+            accessControl,
+            recordManager,
+            hospitalAdmin,
+          };
+          localStorage.setItem("hr_addrs", JSON.stringify(addrs));
+          log(
+            "loadAddresses: cached addresses to localStorage (key=hr_addrs)",
+            "ok",
+          );
+
+          renderAddrs();
+          log("loadAddresses: DONE", "ok");
+        } catch (e) {
+          logErr("loadAddresses", e);
+        }
+      }
+
+      function renderAddrs() {
+        if (!addrs) {
+          $("addressList").textContent = "";
+          return;
+        }
+        $("addressList").textContent =
+          `Deployer         ${addrs.deployer}\n` +
+          `AuditLog         ${addrs.auditLog}\n` +
+          `PatientRegistry  ${addrs.patientRegistry}\n` +
+          `ProviderRegistry ${addrs.providerRegistry}\n` +
+          `AccessControl    ${addrs.accessControl}\n` +
+          `RecordManager    ${addrs.recordManager}\n` +
+          `hospitalAdmin    ${addrs.hospitalAdmin || "(unknown)"}`;
+      }
+
+      function clearCache() {
+        localStorage.removeItem("hr_addrs");
+        addrs = null;
+        $("deployerAddr").value = "";
+        renderAddrs();
+        log("clearCache: localStorage key 'hr_addrs' removed", "info");
+      }
+
+      // Buttons
+      $("connectBtn").onclick = connect;
+      $("loadBtn").onclick = loadAddresses;
+      $("clearBtn").onclick = clearCache;
+
+      // Init: log everything we know at page load
+      log("=== Page loaded ===", "info");
+      log(
+        `ethers.js version: ${window.ethers?.version || "(unknown)"}`,
+        "info",
+      );
+      log(`userAgent: ${navigator.userAgent}`, "info");
+
+      if (window.ethereum) {
+        log("window.ethereum present at page load", "ok");
+        window.ethereum.on("accountsChanged", (accs) => {
+          log(`Event: accountsChanged → [${accs.join(", ")}]`, "ev");
+          location.reload();
+        });
+        window.ethereum.on("chainChanged", (id) => {
+          log(
+            `Event: chainChanged → ${id} (decimal: ${parseInt(id, 16)})`,
+            "ev",
+          );
+          location.reload();
+        });
+        window.ethereum.on("disconnect", (err) => {
+          log(`Event: disconnect → ${JSON.stringify(err)}`, "ev");
+        });
+        log(
+          "Wired up MetaMask event listeners: accountsChanged, chainChanged, disconnect",
+          "info",
+        );
+      } else {
+        log(
+          "window.ethereum NOT present — MetaMask is not installed or not detected",
+          "bad",
+        );
+      }
+
+      if (addrs) {
+        log("Restored cached addresses from localStorage", "ok");
+        $("deployerAddr").value = addrs.deployer || "";
+        renderAddrs();
+      } else {
+        log("No cached addresses in localStorage", "info");
+      }
+    </script>
+  </body>
+</html>
