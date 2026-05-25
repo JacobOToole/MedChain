@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>HealthRecords dApp (scaffold)</title>
+    <title>MedChain dApp demo</title>
     <style>
       body {
         font-family: sans-serif;
@@ -136,7 +136,7 @@
       <h4>Register as a patient</h4>
       <div class="field">
         <label>Public key:</label>
-        <input id="p_pubkey" placeholder="pk_demo_alice" />
+        <input id="p_pubkey" placeholder="pk_demo" />
       </div>
       <button id="registerPatientBtn">Register</button>
       <button id="lookupSelfBtn">Check my registration</button>
@@ -153,7 +153,7 @@
       <div style="margin-top: 10px">
         <div class="field">
           <label>Check current access:</label>
-          <input id="p_checkProvider" placeholder="0x... (provider)" />
+          <input id="p_checkProvider" placeholder="0x..." />
         </div>
         <button id="checkAccessBtn">Check</button>
         <span id="p_checkResult" style="font-size: 12px"></span>
@@ -173,7 +173,7 @@
       </div>
       <div class="field">
         <label>CID:</label>
-        <input id="r_cid" placeholder="QmHash..." />
+        <input id="r_cid" placeholder="CID hash..." />
       </div>
       <button id="uploadRecordBtn">Upload</button>
 
@@ -184,7 +184,7 @@
       </div>
       <div class="field">
         <label>New CID:</label>
-        <input id="u_cid" placeholder="QmHash..." />
+        <input id="u_cid" placeholder="CID hash..." />
       </div>
       <button id="updateRecordBtn">Update</button>
 
@@ -493,8 +493,12 @@
       // Tab switching
       document.querySelectorAll(".tab").forEach((t) => {
         t.addEventListener("click", () => {
-          document.querySelectorAll(".tab").forEach((x) => x.classList.remove("active"));
-          document.querySelectorAll(".panel").forEach((x) => x.classList.remove("active"));
+          document
+            .querySelectorAll(".tab")
+            .forEach((x) => x.classList.remove("active"));
+          document
+            .querySelectorAll(".panel")
+            .forEach((x) => x.classList.remove("active"));
           t.classList.add("active");
           $(t.dataset.panel).classList.add("active");
         });
@@ -502,39 +506,74 @@
 
       // Metamask connect
       async function connect() {
-        if (!window.ethereum) { log("MetaMask not detected", "bad"); return; }
+        if (!window.ethereum) {
+          log("MetaMask not detected", "bad");
+          return;
+        }
         try {
           provider = new ethers.providers.Web3Provider(window.ethereum);
           await provider.send("eth_requestAccounts", []);
           signer = provider.getSigner();
           account = await signer.getAddress();
           network = await provider.getNetwork();
-          const balance = ethers.utils.formatEther(await provider.getBalance(account));
+          const balance = ethers.utils.formatEther(
+            await provider.getBalance(account),
+          );
           $("account").textContent = account;
-          $("network").textContent = `${network.name} (chainId ${network.chainId})`;
-          log(`Connected ${short(account)} on ${network.name} (${Number(balance).toFixed(3)} ETH)`, "ok");
-          if (network.chainId !== 11155111) log(`Warning: not on Sepolia (chainId ${network.chainId})`, "bad");
+          $("network").textContent =
+            `${network.name} (chainId ${network.chainId})`;
+          log(
+            `Connected ${short(account)} on ${network.name} (${Number(balance).toFixed(3)} ETH)`,
+            "ok",
+          );
+          if (network.chainId !== 11155111)
+            log(`Warning: not on Sepolia (chainId ${network.chainId})`, "bad");
           buildContracts();
-        } catch (e) { logErr("connect", e); }
+        } catch (e) {
+          logErr("connect", e);
+        }
       }
 
       // Build contracts
       function buildContracts() {
         if (!signer || !addrs) return;
-        contracts.deployer         = new ethers.Contract(addrs.deployer,         DEPLOYER_ABI,          signer);
-        contracts.patientRegistry  = new ethers.Contract(addrs.patientRegistry,  PATIENT_REGISTRY_ABI,  signer);
-        contracts.providerRegistry = new ethers.Contract(addrs.providerRegistry, PROVIDER_REGISTRY_ABI, signer);
-        contracts.accessControl    = new ethers.Contract(addrs.accessControl,    ACCESS_CONTROL_ABI,    signer);
-        contracts.recordManager    = new ethers.Contract(addrs.recordManager,    RECORD_MANAGER_ABI,    signer);
-        contracts.auditLog         = new ethers.Contract(addrs.auditLog,         AUDIT_LOG_ABI,         signer);
+        contracts.deployer = new ethers.Contract(
+          addrs.deployer,
+          DEPLOYER_ABI,
+          signer,
+        );
+        contracts.patientRegistry = new ethers.Contract(
+          addrs.patientRegistry,
+          PATIENT_REGISTRY_ABI,
+          signer,
+        );
+        contracts.providerRegistry = new ethers.Contract(
+          addrs.providerRegistry,
+          PROVIDER_REGISTRY_ABI,
+          signer,
+        );
+        contracts.accessControl = new ethers.Contract(
+          addrs.accessControl,
+          ACCESS_CONTROL_ABI,
+          signer,
+        );
+        contracts.recordManager = new ethers.Contract(
+          addrs.recordManager,
+          RECORD_MANAGER_ABI,
+          signer,
+        );
+        contracts.auditLog = new ethers.Contract(
+          addrs.auditLog,
+          AUDIT_LOG_ABI,
+          signer,
+        );
       }
 
       // Load deployed contract addresses from the Deployer
       async function loadAddresses() {
-        log("loadAddresses: starting…");
         const deployerAddr = $("deployerAddr").value.trim();
         if (!ethers.utils.isAddress(deployerAddr)) {
-          log("loadAddresses: invalid address", "bad");
+          log("Invalid deployer address", "bad");
           return;
         }
         if (!signer) {
@@ -544,10 +583,9 @@
         try {
           const code = await provider.getCode(deployerAddr);
           if (code === "0x") {
-            log("loadAddresses: no contract code at that address", "bad");
+            log("No contract at that address", "bad");
             return;
           }
-          log(`loadAddresses: bytecode ${code.length} bytes — OK`, "ok");
           const dep = new ethers.Contract(deployerAddr, DEPLOYER_ABI, signer);
           const t0 = performance.now();
           const [
@@ -558,35 +596,13 @@
             recordManager,
             hospitalAdmin,
           ] = await Promise.all([
-            dep.auditLog().then((a) => {
-              log(`  ↳ auditLog         = ${a}`, "ok");
-              return a;
-            }),
-            dep.patientRegistry().then((a) => {
-              log(`  ↳ patientRegistry  = ${a}`, "ok");
-              return a;
-            }),
-            dep.providerRegistry().then((a) => {
-              log(`  ↳ providerRegistry = ${a}`, "ok");
-              return a;
-            }),
-            dep.accessControl().then((a) => {
-              log(`  ↳ accessControl    = ${a}`, "ok");
-              return a;
-            }),
-            dep.recordManager().then((a) => {
-              log(`  ↳ recordManager    = ${a}`, "ok");
-              return a;
-            }),
-            dep.hospitalAdmin().then((a) => {
-              log(`  ↳ hospitalAdmin    = ${a}`, "ok");
-              return a;
-            }),
+            dep.auditLog(),
+            dep.patientRegistry(),
+            dep.providerRegistry(),
+            dep.accessControl(),
+            dep.recordManager(),
+            dep.hospitalAdmin(),
           ]);
-          log(
-            `loadAddresses: 6 getters in ${Math.round(performance.now() - t0)}ms`,
-            "ok",
-          );
           addrs = {
             deployer: deployerAddr,
             auditLog,
@@ -599,7 +615,10 @@
           localStorage.setItem("hr_addrs", JSON.stringify(addrs));
           renderAddrs();
           buildContracts();
-          log("loadAddresses: DONE", "ok");
+          log(
+            `Loaded 6 addresses from deployer (${Math.round(performance.now() - t0)}ms)`,
+            "ok",
+          );
         } catch (e) {
           logErr("loadAddresses", e);
         }
@@ -625,7 +644,7 @@
         addrs = null;
         $("deployerAddr").value = "";
         renderAddrs();
-        log("clearCache: localStorage key 'hr_addrs' removed", "info");
+        log("Cache cleared", "info");
       }
 
       // Buttons
@@ -648,13 +667,11 @@
           if (!isP) {
             $("p_selfStatus").innerHTML =
               '<span class="pill bad">not registered</span>';
-            log("lookupSelf: account is not a registered patient", "info");
             return;
           }
           const p = await contracts.patientRegistry.getPatient(account);
           $("p_selfStatus").innerHTML =
             `<span class="pill ok">registered</span> publicKey: <code>${p.publicKey}</code>`;
-          log(`lookupSelf: patient publicKey="${p.publicKey}"`, "ok");
         } catch (e) {
           logErr("lookupSelf", e);
         }
@@ -681,34 +698,24 @@
           $("p_checkResult").innerHTML = ok
             ? '<span class="pill ok">granted</span>'
             : '<span class="pill bad">no access</span>';
-          log(
-            `checkAccess: ${ok ? "granted" : "no access"}`,
-            ok ? "ok" : "info",
-          );
         } catch (e) {
           logErr("checkAccess", e);
         }
       };
 
       async function listRecordsByPatient(patientFilter) {
-        const count = await contracts.recordManager.recordCount();
-        const N = count.toNumber();
-        log(`listRecordsByPatient: scanning ${N} records on chain…`);
+        const N = (await contracts.recordManager.recordCount()).toNumber();
         const out = [];
         for (let i = 0; i < N; i++) {
           try {
             const r = await contracts.recordManager.getRecord(i);
-            if (r.patient.toLowerCase() === patientFilter.toLowerCase()) {
+            if (r.patient.toLowerCase() === patientFilter.toLowerCase())
               out.push({ id: i, ...r });
-            }
           } catch (_) {
             /* not authorised */
           }
         }
-        log(
-          `listRecordsByPatient: found ${out.length} visible record(s)`,
-          "ok",
-        );
+        log(`Scanned ${N} records, ${out.length} visible`, "ok");
         return out;
       }
 
@@ -717,8 +724,7 @@
         return records
           .map(
             (r) =>
-              `#${r.id}  cid=${r.cid}  provider=${short(r.provider)}  ` +
-              `ts=${fmtTs(r.timestamp)}  prev=${r.previousVersion}  ${r.superseded ? "[superseded]" : "[current]"}`,
+              `#${r.id}  cid=${r.cid}  provider=${short(r.provider)}  ts=${fmtTs(r.timestamp)}  prev=${r.previousVersion}  ${r.superseded ? "[superseded]" : "[current]"}`,
           )
           .join("\n");
       }
@@ -755,13 +761,14 @@
       $("viewPatientRecordsBtn").onclick = async () => {
         const p = $("v_patient").value;
         if (!ethers.utils.isAddress(p)) {
-          log("viewPatientRecords: invalid patient address", "bad");
+          log("Invalid patient address", "bad");
           return;
         }
         $("v_records").textContent = "Loading…";
         try {
-          const records = await listRecordsByPatient(p);
-          $("v_records").textContent = formatRecords(records);
+          $("v_records").textContent = formatRecords(
+            await listRecordsByPatient(p),
+          );
         } catch (e) {
           logErr("viewPatientRecords", e);
         }
@@ -789,10 +796,7 @@
             $("h_lookupAddr").value,
           );
           $("h_lookupResult").textContent =
-            `wallet:  ${p.wallet}\n` +
-            `name:    ${p.name}\n` +
-            `active:  ${p.active}`;
-          log(`lookupProvider: name="${p.name}" active=${p.active}`, "ok");
+            `wallet:  ${p.wallet}\nname:    ${p.name}\nactive:  ${p.active}`;
         } catch (e) {
           logErr("lookupProvider", e);
         }
@@ -810,32 +814,29 @@
       $("loadAuditAllBtn").onclick = async () => {
         $("auditAll").textContent = "Loading…";
         try {
-          const filter = contracts.auditLog.filters.Logged();
           const events = await contracts.auditLog.queryFilter(
-            filter,
+            contracts.auditLog.filters.Logged(),
             0,
             "latest",
           );
-          log(
-            `loadAuditAll: queryFilter returned ${events.length} events`,
-            "ok",
-          );
           if (events.length === 0) {
             $("auditAll").textContent = "(empty)";
-            return;
+          } else {
+            $("auditAll").textContent = events
+              .map((ev) => {
+                const { id, actor, subject, counterparty, action, timestamp } =
+                  ev.args;
+                return fmtLogEntry(id, {
+                  actor,
+                  subject,
+                  counterparty,
+                  action,
+                  timestamp,
+                });
+              })
+              .join("\n");
           }
-          const lines = events.map((ev) => {
-            const { id, actor, subject, counterparty, action, timestamp } =
-              ev.args;
-            return fmtLogEntry(id, {
-              actor,
-              subject,
-              counterparty,
-              action,
-              timestamp,
-            });
-          });
-          $("auditAll").textContent = lines.join("\n");
+          log(`Audit log: ${events.length} events`, "ok");
         } catch (e) {
           logErr("loadAuditAll", e);
         }
@@ -844,23 +845,23 @@
       $("loadAuditSubjectBtn").onclick = async () => {
         const subject = $("auditSubject").value;
         if (!ethers.utils.isAddress(subject)) {
-          log("loadAuditSubject: invalid subject address", "bad");
+          log("Invalid subject address", "bad");
           return;
         }
         $("auditSubject_out").textContent = "Loading…";
         try {
           const entries = await contracts.auditLog.getLogsForSubject(subject);
-          log(
-            `loadAuditSubject: ${entries.length} entries for ${short(subject)}`,
-            "ok",
-          );
           if (entries.length === 0) {
             $("auditSubject_out").textContent = "(none)";
-            return;
+          } else {
+            $("auditSubject_out").textContent = entries
+              .map((e, i) => fmtLogEntry(i, e))
+              .join("\n");
           }
-          $("auditSubject_out").textContent = entries
-            .map((e, i) => fmtLogEntry(i, e))
-            .join("\n");
+          log(
+            `Subject filter: ${entries.length} entries for ${short(subject)}`,
+            "ok",
+          );
         } catch (e) {
           logErr("loadAuditSubject", e);
         }
@@ -870,15 +871,17 @@
       $("loadStatusBtn").onclick = async () => {
         try {
           const s = await contracts.deployer.systemStatus();
-          const txt =
+          $("statusOut").textContent =
             `hospitalAdmin   ${s._hospitalAdmin}\n` +
             `auditLog owner  ${s._auditLogOwner}\n` +
             `patient count   ${s._patientCount.toString()}\n` +
             `provider count  ${s._providerCount.toString()}\n` +
             `record count    ${s._recordCount.toString()}\n` +
             `audit log count ${s._auditLogCount.toString()}`;
-          $("statusOut").textContent = txt;
-          log("loadStatus: systemStatus call returned successfully", "ok");
+          log(
+            `System status: ${s._patientCount} patients, ${s._providerCount} providers, ${s._recordCount} records, ${s._auditLogCount} events`,
+            "ok",
+          );
         } catch (e) {
           logErr("loadStatus", e);
         }
@@ -907,38 +910,38 @@
             contracts.deployer.hospitalAdmin(),
           ]);
           const eq = (a, b) => a.toLowerCase() === b.toLowerCase();
-          const check = (label, pass, detail = "") =>
-            `${pass ? "✓" : "✗"} ${label}${detail ? "  (" + detail + ")" : ""}`;
-          const lines = [
-            check("AccessControl authorised on AuditLog", acAuthd),
-            check("RecordManager authorised on AuditLog", rmAuthd),
-            check(
-              "AuditLog owner = hospitalAdmin",
-              eq(auditOwner, deployerAdmin),
-              `owner=${auditOwner}`,
-            ),
-            check(
+          const check = (label, pass) => `${pass ? "✓" : "✗"} ${label}`;
+          const results = [
+            ["AccessControl authorised on AuditLog", acAuthd],
+            ["RecordManager authorised on AuditLog", rmAuthd],
+            ["AuditLog owner = hospitalAdmin", eq(auditOwner, deployerAdmin)],
+            [
               "ProviderRegistry admin = hospitalAdmin",
               eq(providerAdmin, deployerAdmin),
-            ),
-            check(
+            ],
+            [
               "AccessControl.patientRegistry  correct",
               eq(acPatientReg, addrs.patientRegistry),
-            ),
-            check(
+            ],
+            [
               "AccessControl.providerRegistry correct",
               eq(acProviderReg, addrs.providerRegistry),
-            ),
-            check(
+            ],
+            [
               "AccessControl.auditLog         correct",
               eq(acAuditLog, addrs.auditLog),
-            ),
+            ],
           ];
-          $("verifyOut").textContent = lines.join("\n");
-          log("verifyWiring: checks complete", "ok");
+          $("verifyOut").textContent = results
+            .map(([l, p]) => check(l, p))
+            .join("\n");
+          const passed = results.filter(([, p]) => p).length;
+          log(
+            `Wiring checks: ${passed}/${results.length} passed`,
+            passed === results.length ? "ok" : "bad",
+          );
         } catch (e) {
           logErr("verifyWiring", e);
-          $("verifyOut").textContent = `Error: ${e.message}`;
         }
       };
 

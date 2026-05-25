@@ -47,8 +47,7 @@ contract RecordManager {
         accessControl = IAccessControl(_accessControl);
         auditLog      = IAuditLogRM(_auditLog);
     }
-
-    // TODO: functions
+    
 
     function uploadRecord(address patient, string calldata cid) external returns (uint256) {
         // Check access permissions
@@ -112,11 +111,7 @@ contract RecordManager {
         return r;
     }
 
-    function getRecordIdsForPatient(address patient)
-        external
-        view
-        returns (uint256[] memory)
-    {
+    function getRecordIdsForPatient(address patient) external view returns (uint256[] memory) {
         require(
             msg.sender == patient || accessControl.checkAccess(patient, msg.sender),
             "RecordManager: not authorized"
