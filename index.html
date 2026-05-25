@@ -435,6 +435,7 @@
       // State
       let provider, signer, account, network;
       let addrs = JSON.parse(localStorage.getItem("hr_addrs") || "null");
+      const contracts = {};
 
       // Logging & helpers
       const $ = (id) => document.getElementById(id);
@@ -459,14 +460,10 @@
 
       function logErr(label, e) {
         const msg = e?.error?.message || e?.reason || e?.message || String(e);
-        log(`${label}: ERROR — ${msg}`, "bad");
-        if (e?.data)
-          log(`${label}: error.data = ${JSON.stringify(e.data)}`, "bad");
-        if (e?.code) log(`${label}: error.code = ${e.code}`, "bad");
+        log(`${label}: ${msg}`, "bad");
         console.error(label, e);
       }
 
-      //
       async function sendTx(label, txPromise) {
         try {
           log(`${label}: sending…`);
@@ -496,95 +493,40 @@
       // Tab switching
       document.querySelectorAll(".tab").forEach((t) => {
         t.addEventListener("click", () => {
-          document
-            .querySelectorAll(".tab")
-            .forEach((x) => x.classList.remove("active"));
-          document
-            .querySelectorAll(".panel")
-            .forEach((x) => x.classList.remove("active"));
+          document.querySelectorAll(".tab").forEach((x) => x.classList.remove("active"));
+          document.querySelectorAll(".panel").forEach((x) => x.classList.remove("active"));
           t.classList.add("active");
           $(t.dataset.panel).classList.add("active");
-          log(`tab switched → ${t.dataset.panel}`, "info");
         });
       });
 
       // Metamask connect
       async function connect() {
-        log("connect: starting…");
-        if (!window.ethereum) {
-          log("connect: window.ethereum is undefined", "bad");
-          return;
-        }
-        log("connect: window.ethereum detected", "ok");
+        if (!window.ethereum) { log("MetaMask not detected", "bad"); return; }
         try {
           provider = new ethers.providers.Web3Provider(window.ethereum);
-          const accounts = await provider.send("eth_requestAccounts", []);
-          log(
-            `connect: eth_requestAccounts → ${accounts.length} account(s)`,
-            "ok",
-          );
+          await provider.send("eth_requestAccounts", []);
           signer = provider.getSigner();
           account = await signer.getAddress();
           network = await provider.getNetwork();
-          const balance = await provider.getBalance(account);
-          log(`connect: account=${account}`, "ok");
-          log(
-            `connect: network=${network.name} chainId=${network.chainId}`,
-            "ok",
-          );
-          log(
-            `connect: balance=${ethers.utils.formatEther(balance)} ETH`,
-            "info",
-          );
-          if (network.chainId !== 11155111) {
-            log(
-              `connect: WARNING — chainId ${network.chainId} is not Sepolia`,
-              "bad",
-            );
-          }
+          const balance = ethers.utils.formatEther(await provider.getBalance(account));
           $("account").textContent = account;
-          $("network").textContent =
-            `${network.name} (chainId ${network.chainId})`;
+          $("network").textContent = `${network.name} (chainId ${network.chainId})`;
+          log(`Connected ${short(account)} on ${network.name} (${Number(balance).toFixed(3)} ETH)`, "ok");
+          if (network.chainId !== 11155111) log(`Warning: not on Sepolia (chainId ${network.chainId})`, "bad");
           buildContracts();
-          log("connect: DONE", "ok");
-        } catch (e) {
-          logErr("connect", e);
-        }
+        } catch (e) { logErr("connect", e); }
       }
 
       // Build contracts
-      const contracts = {};
       function buildContracts() {
         if (!signer || !addrs) return;
-        contracts.patientRegistry = new ethers.Contract(
-          addrs.patientRegistry,
-          PATIENT_REGISTRY_ABI,
-          signer,
-        );
-        contracts.providerRegistry = new ethers.Contract(
-          addrs.providerRegistry,
-          PROVIDER_REGISTRY_ABI,
-          signer,
-        );
-        contracts.accessControl = new ethers.Contract(
-          addrs.accessControl,
-          ACCESS_CONTROL_ABI,
-          signer,
-        );
-        contracts.recordManager = new ethers.Contract(
-          addrs.recordManager,
-          RECORD_MANAGER_ABI,
-          signer,
-        );
-        contracts.auditLog = new ethers.Contract(
-          addrs.auditLog,
-          AUDIT_LOG_ABI,
-          signer,
-        );
-        log(
-          `buildContracts: instantiated ${Object.keys(contracts).length} contract objects`,
-          "ok",
-        );
+        contracts.deployer         = new ethers.Contract(addrs.deployer,         DEPLOYER_ABI,          signer);
+        contracts.patientRegistry  = new ethers.Contract(addrs.patientRegistry,  PATIENT_REGISTRY_ABI,  signer);
+        contracts.providerRegistry = new ethers.Contract(addrs.providerRegistry, PROVIDER_REGISTRY_ABI, signer);
+        contracts.accessControl    = new ethers.Contract(addrs.accessControl,    ACCESS_CONTROL_ABI,    signer);
+        contracts.recordManager    = new ethers.Contract(addrs.recordManager,    RECORD_MANAGER_ABI,    signer);
+        contracts.auditLog         = new ethers.Contract(addrs.auditLog,         AUDIT_LOG_ABI,         signer);
       }
 
       // Load deployed contract addresses from the Deployer
@@ -1000,47 +942,27 @@
         }
       };
 
-      // Init: log everything we know at page load
-      log("=== Page loaded ===", "info");
+      // Init
       log(
-        `ethers.js version: ${window.ethers?.version || "(unknown)"}`,
-        "info",
+        `Page loaded — MetaMask ${window.ethereum ? "detected" : "not detected"}`,
+        window.ethereum ? "ok" : "bad",
       );
-      log(`userAgent: ${navigator.userAgent}`, "info");
 
       if (window.ethereum) {
-        log("window.ethereum present at page load", "ok");
-        window.ethereum.on("accountsChanged", (accs) => {
-          log(`Event: accountsChanged → [${accs.join(", ")}]`, "ev");
+        window.ethereum.on("accountsChanged", () => {
+          log("Account changed — reloading", "ev");
           location.reload();
         });
-        window.ethereum.on("chainChanged", (id) => {
-          log(
-            `Event: chainChanged → ${id} (decimal: ${parseInt(id, 16)})`,
-            "ev",
-          );
+        window.ethereum.on("chainChanged", () => {
+          log("Network changed — reloading", "ev");
           location.reload();
         });
-        window.ethereum.on("disconnect", (err) => {
-          log(`Event: disconnect → ${JSON.stringify(err)}`, "ev");
-        });
-        log(
-          "Wired up MetaMask event listeners: accountsChanged, chainChanged, disconnect",
-          "info",
-        );
-      } else {
-        log(
-          "window.ethereum NOT present — MetaMask is not installed or not detected",
-          "bad",
-        );
       }
 
       if (addrs) {
-        log("Restored cached addresses from localStorage", "ok");
         $("deployerAddr").value = addrs.deployer || "";
         renderAddrs();
-      } else {
-        log("No cached addresses in localStorage", "info");
+        log("Restored cached addresses", "info");
       }
     </script>
   </body>
