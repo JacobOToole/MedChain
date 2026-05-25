@@ -145,6 +145,46 @@
 			},
 			{
 				"inputs": [],
+				"name": "getAllLogs",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "actor",
+								"type": "address"
+							},
+							{
+								"internalType": "address",
+								"name": "subject",
+								"type": "address"
+							},
+							{
+								"internalType": "address",
+								"name": "counterparty",
+								"type": "address"
+							},
+							{
+								"internalType": "string",
+								"name": "action",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "timestamp",
+								"type": "uint256"
+							}
+						],
+						"internalType": "struct AuditLog.LogEntry[]",
+						"name": "",
+						"type": "tuple[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
 				"name": "getLogCount",
 				"outputs": [
 					{
@@ -331,11 +371,11 @@
 	},
 	"sources": {
 		"contracts/AuditLog.sol": {
-			"keccak256": "0xb222399fc9ff9ad9118a18e1602392e392701b7ae97ad965f28889ffb0f4eb58",
+			"keccak256": "0xcef30df1bf0dc9d24e23d738a226cc7bc885508f336747166da8d2fd9eeee89c",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://25a55ea19144bf70c3b73e923bdc2e8574b3f80cc935ab7238f03cf752665137",
-				"dweb:/ipfs/QmerZtLxRhJ8ixiRUJFgHjv9Km5KqnAvzFUBUU66HK9M9G"
+				"bzz-raw://21d7581424b0803713efb8a096f0e4fefe37c3b2ecd632fa089a9c6ad9201e48",
+				"dweb:/ipfs/QmdjiCFvTqbcYXJNPV1WqBHEsw9b27VGakQjDHEKVzncAg"
 			]
 		}
 	},

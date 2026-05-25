@@ -66,20 +66,23 @@ contract AuditLog {
         // pushes logEvent to array of logs
         logs.push(LogEntry(actor, subject, counterparty, action, block.timestamp));
         // emits Logged event
-        emit Logged(
-            logs.length - 1,
-            actor,
-            subject,
-            counterparty,
-            action, 
-            block.timestamp);
+        // emit Logged(
+        //     logs.length - 1,
+        //     actor,
+        //     subject,
+        //     counterparty,
+        //     action, 
+        //     block.timestamp);
     }
 
     function getLogCount() external view returns (uint256) {
+        require(msg.sender == owner, "AuditLog: not authorised");
         return logs.length;
     }
 
     function getLogsForSubject(address subject) external view returns (LogEntry[] memory) {
+        require(msg.sender == subject || msg.sender == owner, "AuditLog: not authorised to view");
+        
         // Count how many logs there are related to subject
         uint256 count = 0;
         for (uint256 i = 0; i < logs.length; i++) {
@@ -102,6 +105,8 @@ contract AuditLog {
     }
 
     function getLogsForParty(address party) external view returns (LogEntry[] memory) {
+        require(msg.sender == party || msg.sender == owner, "AuditLog: not authorised");
+        
         // Count how many logs there are related to counterparty
         uint256 count = 0;
         for (uint256 i = 0; i < logs.length; i++) {
@@ -118,5 +123,10 @@ contract AuditLog {
             }
         }
         return result;
+    }
+
+    function getAllLogs() external view returns (LogEntry[] memory) {
+        require(msg.sender == owner, "AuditLog: not authorised");
+        return logs;
     }
 }

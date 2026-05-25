@@ -4,95 +4,311 @@
     <meta charset="UTF-8" />
     <title>MedChain dApp demo</title>
     <style>
+      * {
+        box-sizing: border-box;
+      }
       body {
-        font-family: sans-serif;
-        margin: 20px;
-        max-width: 1000px;
+        margin: 0;
+        padding: 40px;
+        font-family: Inter, "Segoe UI", sans-serif;
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(0, 153, 255, 0.12),
+            transparent 28%
+          ),
+          radial-gradient(
+            circle at bottom right,
+            rgba(0, 255, 170, 0.08),
+            transparent 30%
+          ),
+          #0b1120;
+        color: #e5e7eb;
+        max-width: 1200px;
+        margin-inline: auto;
+        line-height: 1.5;
       }
       h1 {
-        font-size: 18px;
+        font-size: 38px;
+        font-weight: 700;
+        margin-bottom: 28px;
+        letter-spacing: -1px;
+        color: #fff;
+      }
+      h1::after {
+        content: "  IFB452 project";
+        font-size: 14px;
+        font-weight: 400;
+        color: #94a3b8;
+        margin-left: 12px;
+        letter-spacing: 0;
       }
       h3 {
-        font-size: 13px;
-        margin: 0 0 8px 0;
+        font-size: 12px;
+        margin: 0 0 18px 0;
         text-transform: uppercase;
-        color: #555;
+        letter-spacing: 1.5px;
+        color: #60a5fa;
+        font-weight: 700;
+      }
+      h4 {
+        margin-top: 28px;
+        margin-bottom: 14px;
+        font-size: 16px;
+        color: #fff;
+        font-weight: 600;
       }
       .section {
-        border: 1px solid #ccc;
-        padding: 10px;
-        margin-bottom: 10px;
+        background: rgba(15, 23, 42, 0.78);
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        border-radius: 18px;
+        padding: 24px;
+        margin-bottom: 22px;
+        backdrop-filter: blur(12px);
+        box-shadow:
+          0 10px 30px rgba(0, 0, 0, 0.25),
+          inset 0 1px 0 rgba(255, 255, 255, 0.04);
       }
-      button {
-        padding: 4px 10px;
-        margin-right: 6px;
-        font-family: inherit;
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+      label {
+        font-size: 13px;
+        color: #cbd5e1;
+        font-weight: 500;
       }
       input {
-        padding: 4px;
-        width: 420px;
-        font-family: monospace;
+        width: 100%;
+        padding: 13px 14px;
+        border-radius: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        background: rgba(15, 23, 42, 0.9);
+        color: #f8fafc;
+        font-size: 14px;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        transition: all 0.2s ease;
+        outline: none;
+      }
+      input::placeholder {
+        color: #64748b;
+      }
+      input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+      }
+      button {
+        padding: 11px 18px;
+        margin-right: 10px;
+        margin-top: 8px;
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #2563eb, #0ea5e9);
+        color: white;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        cursor: pointer;
+        transition: all 0.18s ease;
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+      }
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 22px rgba(37, 99, 235, 0.35);
+      }
+      button:active {
+        transform: scale(0.98);
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
       }
       .tabs {
-        margin-top: 16px;
-        border-bottom: 1px solid #ccc;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 28px;
+        margin-bottom: 0;
+        padding-bottom: 14px;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.14);
       }
       .tab {
-        display: inline-block;
-        padding: 6px 12px;
+        display: inline-flex;
+        align-items: center;
+        padding: 12px 18px;
+        border-radius: 12px;
         cursor: pointer;
+        background: rgba(15, 23, 42, 0.65);
         border: 1px solid transparent;
-        border-bottom: none;
+        color: #94a3b8;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+      }
+      .tab:hover {
+        background: rgba(30, 41, 59, 0.9);
+        color: #fff;
       }
       .tab.active {
-        border-color: #ccc;
-        background: #f5f5f5;
-        position: relative;
-        top: 1px;
+        background: linear-gradient(
+          135deg,
+          rgba(37, 99, 235, 0.25),
+          rgba(14, 165, 233, 0.2)
+        );
+        border: 1px solid rgba(96, 165, 250, 0.35);
+        color: #fff;
+        box-shadow:
+          0 0 0 1px rgba(59, 130, 246, 0.15),
+          0 6px 20px rgba(37, 99, 235, 0.18);
       }
       .panel {
         display: none;
-        padding: 12px;
-        border: 1px solid #ccc;
-        border-top: none;
-        min-height: 60px;
+        padding: 28px;
+        background: rgba(15, 23, 42, 0.78);
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        border-radius: 0 0 18px 18px;
+        min-height: 100px;
+        backdrop-filter: blur(12px);
+        margin-bottom: 24px;
       }
       .panel.active {
         display: block;
+        animation: fadeIn 0.2s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
       .placeholder {
-        color: #888;
+        color: #94a3b8;
         font-style: italic;
       }
       pre {
-        background: #f5f5f5;
-        padding: 8px;
-        margin: 6px 0 0 0;
-        font-size: 11px;
+        background: rgba(2, 6, 23, 0.9);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        border-radius: 14px;
+        padding: 16px;
+        margin-top: 14px;
+        font-size: 12px;
+        color: #dbeafe;
+        overflow-x: auto;
         white-space: pre-wrap;
-        word-break: break-all;
+        word-break: break-word;
+        line-height: 1.7;
+        font-family: "SFMono-Regular", Consolas, monospace;
+      }
+      code {
+        background: rgba(30, 41, 59, 0.9);
+        padding: 2px 6px;
+        border-radius: 6px;
+        color: #93c5fd;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .pill.ok {
+        background: rgba(34, 197, 94, 0.14);
+        color: #4ade80;
+        border: 1px solid rgba(74, 222, 128, 0.3);
+      }
+      .pill.bad {
+        background: rgba(239, 68, 68, 0.14);
+        color: #f87171;
+        border: 1px solid rgba(248, 113, 113, 0.3);
+      }
+      .hint {
+        font-size: 12px;
+        color: #94a3b8;
+        margin-top: 6px;
+        font-style: italic;
       }
       #log {
-        height: 320px;
+        height: 340px;
         overflow-y: auto;
-        background: #1e1e1e;
-        color: #ddd;
-        padding: 8px;
-        font-family: monospace;
-        font-size: 11px;
-        border: 1px solid #444;
+        background: #020617;
+        border-radius: 16px;
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        padding: 18px;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 12px;
+        line-height: 1.7;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      }
+      #log div {
+        margin-bottom: 6px;
       }
       #log .ok {
-        color: #6fcf6f;
+        color: #4ade80;
       }
       #log .bad {
-        color: #f06060;
+        color: #f87171;
       }
       #log .info {
-        color: #aaa;
+        color: #94a3b8;
       }
       #log .ev {
-        color: #6fbfff;
+        color: #60a5fa;
+      }
+      #account,
+      #network {
+        color: #93c5fd;
+        font-family: monospace;
+      }
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: rgba(15, 23, 42, 0.7);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(96, 165, 250, 0.3);
+        border-radius: 999px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(96, 165, 250, 0.5);
+      }
+      @media (max-width: 768px) {
+        body {
+          padding: 20px;
+        }
+        h1 {
+          font-size: 28px;
+          line-height: 1.3;
+        }
+        h1::after {
+          display: block;
+          margin-left: 0;
+          margin-top: 8px;
+        }
+        .tabs {
+          gap: 8px;
+        }
+        .tab {
+          flex: 1 1 calc(50% - 8px);
+          justify-content: center;
+        }
+        button {
+          width: 100%;
+          margin-right: 0;
+        }
       }
     </style>
   </head>
@@ -135,8 +351,7 @@
     <div class="panel active" id="patient">
       <h4>Register as a patient</h4>
       <div class="field">
-        <label>Public key:</label>
-        <input id="p_pubkey" placeholder="pk_demo" />
+        <label>Public key:</label><input id="p_pubkey" placeholder="pk_demo" />
       </div>
       <button id="registerPatientBtn">Register</button>
       <button id="lookupSelfBtn">Check my registration</button>
@@ -144,16 +359,16 @@
 
       <h4>Grant / revoke provider access</h4>
       <div class="field">
-        <label>Provider address:</label>
-        <input id="p_provider" placeholder="0x..." />
+        <label>Provider address:</label
+        ><input id="p_provider" placeholder="0x..." />
       </div>
       <button id="grantBtn">Grant</button>
       <button id="revokeBtn">Revoke</button>
 
       <div style="margin-top: 10px">
         <div class="field">
-          <label>Check current access:</label>
-          <input id="p_checkProvider" placeholder="0x..." />
+          <label>Check current access:</label
+          ><input id="p_checkProvider" placeholder="0x..." />
         </div>
         <button id="checkAccessBtn">Check</button>
         <span id="p_checkResult" style="font-size: 12px"></span>
@@ -168,30 +383,28 @@
     <div class="panel" id="provider">
       <h4>Upload a new record</h4>
       <div class="field">
-        <label>Patient address:</label>
-        <input id="r_patient" placeholder="0x..." />
+        <label>Patient address:</label
+        ><input id="r_patient" placeholder="0x..." />
       </div>
       <div class="field">
-        <label>CID:</label>
-        <input id="r_cid" placeholder="CID hash..." />
+        <label>CID:</label><input id="r_cid" placeholder="CID hash..." />
       </div>
       <button id="uploadRecordBtn">Upload</button>
 
       <h4>Update an existing record</h4>
       <div class="field">
-        <label>Previous record id:</label>
-        <input id="u_prevId" type="number" min="0" placeholder="0" />
+        <label>Previous record id:</label
+        ><input id="u_prevId" type="number" min="0" placeholder="0" />
       </div>
       <div class="field">
-        <label>New CID:</label>
-        <input id="u_cid" placeholder="CID hash..." />
+        <label>New CID:</label><input id="u_cid" placeholder="CID hash..." />
       </div>
       <button id="updateRecordBtn">Update</button>
 
       <h4>View patient records</h4>
       <div class="field">
-        <label>Patient address:</label>
-        <input id="v_patient" placeholder="0x..." />
+        <label>Patient address:</label
+        ><input id="v_patient" placeholder="0x..." />
       </div>
       <button id="viewPatientRecordsBtn">View</button>
       <pre id="v_records"></pre>
@@ -201,20 +414,19 @@
     <div class="panel" id="admin">
       <h4>Register / re-activate a provider</h4>
       <div class="field">
-        <label>Provider wallet:</label>
-        <input id="h_provider" placeholder="0x..." />
+        <label>Provider wallet:</label
+        ><input id="h_provider" placeholder="0x..." />
       </div>
       <div class="field">
-        <label>Name:</label>
-        <input id="h_name" placeholder="Dr Smith" />
+        <label>Name:</label><input id="h_name" placeholder="Dr Smith" />
       </div>
       <button id="registerProviderBtn">Register</button>
       <button id="revokeProviderBtn">Revoke</button>
 
       <h4>Lookup a provider</h4>
       <div class="field">
-        <label>Provider address:</label>
-        <input id="h_lookupAddr" placeholder="0x..." />
+        <label>Provider address:</label
+        ><input id="h_lookupAddr" placeholder="0x..." />
       </div>
       <button id="lookupProviderBtn">Lookup</button>
       <pre id="h_lookupResult"></pre>
@@ -222,17 +434,37 @@
 
     <!-- AUDIT TAB -->
     <div class="panel" id="audit">
-      <h4>All events (via queryFilter on Logged)</h4>
+      <h4>All events (admin only)</h4>
+      <div class="hint">
+        Calls <code>AuditLog.getAllLogs()</code>. Only the hospital admin can
+        read the full log; other accounts will see a revert.
+      </div>
       <button id="loadAuditAllBtn">Load all</button>
       <pre id="auditAll"></pre>
 
       <h4>Filter by patient (subject)</h4>
+      <div class="hint">
+        A patient can read their own log by pasting their own address. The
+        hospital admin can read any patient's log.
+      </div>
       <div class="field">
-        <label>Patient address:</label>
-        <input id="auditSubject" placeholder="0x..." />
+        <label>Patient address:</label
+        ><input id="auditSubject" placeholder="0x..." />
       </div>
       <button id="loadAuditSubjectBtn">Load</button>
       <pre id="auditSubject_out"></pre>
+
+      <h4>Filter by party (actor or counterparty)</h4>
+      <div class="hint">
+        Returns every entry where the address appears as actor or counterparty.
+        Caller must be the party themselves, or the hospital admin.
+      </div>
+      <div class="field">
+        <label>Party address:</label
+        ><input id="auditParty" placeholder="0x..." />
+      </div>
+      <button id="loadAuditPartyBtn">Load</button>
+      <pre id="auditParty_out"></pre>
     </div>
 
     <!-- SYSTEM TAB -->
@@ -284,11 +516,7 @@
           inputs: [],
           name: "auditLog",
           outputs: [
-            {
-              internalType: "contract AuditLog",
-              name: "",
-              type: "address",
-            },
+            { internalType: "contract AuditLog", name: "", type: "address" },
           ],
           stateMutability: "view",
           type: "function",
@@ -296,13 +524,7 @@
         {
           inputs: [],
           name: "hospitalAdmin",
-          outputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
+          outputs: [{ internalType: "address", name: "", type: "address" }],
           stateMutability: "view",
           type: "function",
         },
@@ -359,21 +581,13 @@
               name: "_auditLogOwner",
               type: "address",
             },
-            {
-              internalType: "uint256",
-              name: "_patientCount",
-              type: "uint256",
-            },
+            { internalType: "uint256", name: "_patientCount", type: "uint256" },
             {
               internalType: "uint256",
               name: "_providerCount",
               type: "uint256",
             },
-            {
-              internalType: "uint256",
-              name: "_recordCount",
-              type: "uint256",
-            },
+            { internalType: "uint256", name: "_recordCount", type: "uint256" },
             {
               internalType: "uint256",
               name: "_auditLogCount",
@@ -390,7 +604,6 @@
         "function isPatient(address) view returns (bool)",
         "function getPatient(address) view returns (tuple(address wallet, string publicKey, bool exists))",
         "function patientCount() view returns (uint256)",
-        "event PatientRegistered(address indexed patient, uint256 timestamp)",
       ];
 
       const PROVIDER_REGISTRY_ABI = [
@@ -400,8 +613,6 @@
         "function getProvider(address) view returns (tuple(address wallet, string name, bool active))",
         "function hospitalAdmin() view returns (address)",
         "function providerCount() view returns (uint256)",
-        "event ProviderRegistered(address indexed provider, string name, uint256 timestamp)",
-        "event ProviderRevoked(address indexed provider, uint256 timestamp)",
       ];
 
       const ACCESS_CONTROL_ABI = [
@@ -411,8 +622,6 @@
         "function patientRegistry() view returns (address)",
         "function providerRegistry() view returns (address)",
         "function auditLog() view returns (address)",
-        "event AccessGranted(address indexed patient, address indexed provider, uint256 timestamp)",
-        "event AccessRevoked(address indexed patient, address indexed provider, uint256 timestamp)",
       ];
 
       const RECORD_MANAGER_ABI = [
@@ -420,16 +629,15 @@
         "function updateRecord(uint256 previousId, string cid) returns (uint256)",
         "function getRecord(uint256 id) view returns (tuple(address provider, address patient, string cid, uint256 timestamp, uint256 previousVersion, bool superseded))",
         "function recordCount() view returns (uint256)",
-        "event RecordUploaded(address indexed patient, address indexed provider, string cid, uint256 timestamp)",
-        "event RecordUpdated(uint256 indexed newId, uint256 indexed previousId, address indexed patient, string cid, uint256 timestamp)",
       ];
 
       const AUDIT_LOG_ABI = [
         "function owner() view returns (address)",
         "function authorisedCallers(address) view returns (bool)",
         "function getLogCount() view returns (uint256)",
+        "function getAllLogs() view returns (tuple(address actor, address subject, address counterparty, string action, uint256 timestamp)[])",
         "function getLogsForSubject(address subject) view returns (tuple(address actor, address subject, address counterparty, string action, uint256 timestamp)[])",
-        "event Logged(uint256 indexed id, address indexed actor, address indexed subject, address counterparty, string action, uint256 timestamp)",
+        "function getLogsForParty(address party) view returns (tuple(address actor, address subject, address counterparty, string action, uint256 timestamp)[])",
       ];
 
       // State
@@ -446,8 +654,8 @@
 
       function ts() {
         const d = new Date();
-        const pad = (n, l = 2) => String(n).padStart(l, "0");
-        return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}`;
+        const pad = (n) => String(n).padStart(2, "0");
+        return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
       }
 
       function log(msg, cls = "info") {
@@ -455,7 +663,6 @@
         line.className = cls;
         line.textContent = `[${ts()}] ${msg}`;
         $("log").prepend(line);
-        console.log(`[${cls}] ${msg}`);
       }
 
       function logErr(label, e) {
@@ -468,21 +675,14 @@
         try {
           log(`${label}: sending…`);
           const sent = await txPromise;
-          log(
-            `${label}: tx ${short(sent.hash)} sent, waiting for confirmation…`,
-          );
           const receipt = await sent.wait();
-          log(
-            `${label}: confirmed in block ${receipt.blockNumber} (gasUsed ${receipt.gasUsed.toString()})`,
-            "ok",
-          );
+          log(`${label}: confirmed (block ${receipt.blockNumber})`, "ok");
           return receipt;
         } catch (e) {
           logErr(label, e);
         }
       }
 
-      // Format timestamp
       function fmtTs(bnOrNum) {
         const n = ethers.BigNumber.isBigNumber(bnOrNum)
           ? bnOrNum.toNumber()
@@ -529,12 +729,12 @@
           if (network.chainId !== 11155111)
             log(`Warning: not on Sepolia (chainId ${network.chainId})`, "bad");
           buildContracts();
+          updateAdminUiHints();
         } catch (e) {
           logErr("connect", e);
         }
       }
 
-      // Build contracts
       function buildContracts() {
         if (!signer || !addrs) return;
         contracts.deployer = new ethers.Contract(
@@ -569,7 +769,16 @@
         );
       }
 
-      // Load deployed contract addresses from the Deployer
+      function updateAdminUiHints() {
+        if (!account || !addrs?.hospitalAdmin) return;
+        const isAdmin =
+          account.toLowerCase() === addrs.hospitalAdmin.toLowerCase();
+        $("loadAuditAllBtn").disabled = !isAdmin;
+        $("loadAuditAllBtn").title = isAdmin
+          ? "Read all audit entries"
+          : "Hospital admin only";
+      }
+
       async function loadAddresses() {
         const deployerAddr = $("deployerAddr").value.trim();
         if (!ethers.utils.isAddress(deployerAddr)) {
@@ -615,6 +824,7 @@
           localStorage.setItem("hr_addrs", JSON.stringify(addrs));
           renderAddrs();
           buildContracts();
+          updateAdminUiHints();
           log(
             `Loaded 6 addresses from deployer (${Math.round(performance.now() - t0)}ms)`,
             "ok",
@@ -647,12 +857,11 @@
         log("Cache cleared", "info");
       }
 
-      // Buttons
       $("connectBtn").onclick = connect;
       $("loadBtn").onclick = loadAddresses;
       $("clearBtn").onclick = clearCache;
 
-      // PATIENT HANDLER
+      // PATIENT
       $("registerPatientBtn").onclick = () =>
         sendTx(
           "registerPatient",
@@ -682,7 +891,6 @@
           "grantAccess",
           contracts.accessControl.grantAccess($("p_provider").value),
         );
-
       $("revokeBtn").onclick = () =>
         sendTx(
           "revokeAccess",
@@ -732,14 +940,15 @@
       $("listMyRecordsBtn").onclick = async () => {
         $("p_records").textContent = "Loading…";
         try {
-          const records = await listRecordsByPatient(account);
-          $("p_records").textContent = formatRecords(records);
+          $("p_records").textContent = formatRecords(
+            await listRecordsByPatient(account),
+          );
         } catch (e) {
           logErr("listMyRecords", e);
         }
       };
 
-      // PROVIDER HANDLER
+      // PROVIDER
       $("uploadRecordBtn").onclick = () =>
         sendTx(
           "uploadRecord",
@@ -774,7 +983,7 @@
         }
       };
 
-      // HOSPITAL ADMIN HANDLER
+      // HOSPITAL ADMIN
       $("registerProviderBtn").onclick = () =>
         sendTx(
           "registerProvider",
@@ -802,7 +1011,7 @@
         }
       };
 
-      // AUDIT LOG HANDLER
+      // AUDIT LOG
       function fmtLogEntry(id, e) {
         const cp =
           e.counterparty === ethers.constants.AddressZero
@@ -814,30 +1023,17 @@
       $("loadAuditAllBtn").onclick = async () => {
         $("auditAll").textContent = "Loading…";
         try {
-          const events = await contracts.auditLog.queryFilter(
-            contracts.auditLog.filters.Logged(),
-            0,
-            "latest",
-          );
-          if (events.length === 0) {
+          const entries = await contracts.auditLog.getAllLogs();
+          if (entries.length === 0) {
             $("auditAll").textContent = "(empty)";
           } else {
-            $("auditAll").textContent = events
-              .map((ev) => {
-                const { id, actor, subject, counterparty, action, timestamp } =
-                  ev.args;
-                return fmtLogEntry(id, {
-                  actor,
-                  subject,
-                  counterparty,
-                  action,
-                  timestamp,
-                });
-              })
+            $("auditAll").textContent = entries
+              .map((e, i) => fmtLogEntry(i, e))
               .join("\n");
           }
-          log(`Audit log: ${events.length} events`, "ok");
+          log(`Audit log: ${entries.length} entries`, "ok");
         } catch (e) {
+          $("auditAll").textContent = "(unable to load — admin-only)";
           logErr("loadAuditAll", e);
         }
       };
@@ -863,11 +1059,40 @@
             "ok",
           );
         } catch (e) {
+          $("auditSubject_out").textContent =
+            "(unable to load — must be the subject or admin)";
           logErr("loadAuditSubject", e);
         }
       };
 
-      // SYSTEM HANDLER
+      $("loadAuditPartyBtn").onclick = async () => {
+        const party = $("auditParty").value;
+        if (!ethers.utils.isAddress(party)) {
+          log("Invalid party address", "bad");
+          return;
+        }
+        $("auditParty_out").textContent = "Loading…";
+        try {
+          const entries = await contracts.auditLog.getLogsForParty(party);
+          if (entries.length === 0) {
+            $("auditParty_out").textContent = "(none)";
+          } else {
+            $("auditParty_out").textContent = entries
+              .map((e, i) => fmtLogEntry(i, e))
+              .join("\n");
+          }
+          log(
+            `Party filter: ${entries.length} entries for ${short(party)}`,
+            "ok",
+          );
+        } catch (e) {
+          $("auditParty_out").textContent =
+            "(unable to load — must be the party or admin)";
+          logErr("loadAuditParty", e);
+        }
+      };
+
+      // SYSTEM
       $("loadStatusBtn").onclick = async () => {
         try {
           const s = await contracts.deployer.systemStatus();

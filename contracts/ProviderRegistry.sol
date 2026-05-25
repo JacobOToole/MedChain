@@ -14,7 +14,7 @@ contract ProviderRegistry {
     address[] private providerList;
 
     event ProviderRegistered(address indexed provider, string name, uint256 timestamp);
-        event ProviderRevoked(address indexed provider, uint256 timestamp);
+    event ProviderRevoked(address indexed provider, uint256 timestamp);
 
     modifier onlyAdmin() {
         require(msg.sender == hospitalAdmin, "ProviderRegistry: not hospital admin");
