@@ -95,6 +95,10 @@
           box-shadow 0.15s ease;
         outline: none;
       }
+      input[type="file"] {
+        padding: 6px 11px;
+        font-family: inherit;
+      }
       input::placeholder {
         color: #475569;
       }
@@ -209,6 +213,14 @@
         line-height: 1.55;
         font-family: "SFMono-Regular", Consolas, monospace;
       }
+      pre a {
+        color: #93c5fd;
+        text-decoration: none;
+      }
+      pre a:hover {
+        color: #c7dbff;
+        text-decoration: underline;
+      }
       code {
         background: rgba(30, 41, 59, 0.8);
         padding: 1px 5px;
@@ -321,7 +333,7 @@
 
     <!-- WALLET -->
     <div class="section">
-      <h3>1. Wallet</h3>
+      <h3>Wallet</h3>
       <div>Account: <span id="account">(not connected)</span></div>
       <div>Network: <span id="network">—</span></div>
       <div style="margin-top: 6px">
@@ -331,7 +343,7 @@
 
     <!-- DEPLOYED SYSTEM -->
     <div class="section">
-      <h3>2. Deployed system</h3>
+      <h3>Deployed system</h3>
       <div>
         Deployer address: <input id="deployerAddr" placeholder="0x..." />
       </div>
@@ -348,6 +360,10 @@
       <div class="field">
         <label>Pinata JWT</label>
         <input id="pinataJwt" type="password" placeholder="eyJ..." />
+      </div>
+      <div class="hint">
+        Stored locally in your browser only. Get from pinata.cloud → API Keys →
+        JWT.
       </div>
       <div style="margin-top: 6px">
         <button id="savePinataBtn">Save</button>
@@ -408,9 +424,10 @@
         ><input id="r_patient" placeholder="0x..." />
       </div>
       <div class="field">
-        <label>CID:</label><input id="r_cid" placeholder="CID hash..." />
+        <label>File:</label><input id="r_file" type="file" />
       </div>
-      <button id="uploadRecordBtn">Upload</button>
+      <button id="uploadRecordBtn">Upload to IPFS + chain</button>
+      <div id="r_progress" style="font-size: 12px; margin-top: 6px"></div>
 
       <h4>Update an existing record</h4>
       <div class="field">
@@ -418,9 +435,10 @@
         ><input id="u_prevId" type="number" min="0" placeholder="0" />
       </div>
       <div class="field">
-        <label>New CID:</label><input id="u_cid" placeholder="CID hash..." />
+        <label>New file:</label><input id="u_file" type="file" />
       </div>
-      <button id="updateRecordBtn">Update</button>
+      <button id="updateRecordBtn">Update via IPFS + chain</button>
+      <div id="u_progress" style="font-size: 12px; margin-top: 6px"></div>
 
       <h4>View patient records</h4>
       <div class="field">
@@ -661,12 +679,73 @@
         "function getLogsForParty(address party) view returns (tuple(address actor, address subject, address counterparty, string action, uint256 timestamp)[])",
       ];
 
+      // Pinata / IPFS
+      const PINATA_AUTH_URL =
+        "https://api.pinata.cloud/data/testAuthentication";
+      const PINATA_UPLOAD_URL =
+        "https://api.pinata.cloud/pinning/pinFileToIPFS";
+      const PINATA_GATEWAY = "https://gateway.pinata.cloud/ipfs/";
+
+      let pinataJwt = localStorage.getItem("pinata_jwt") || "";
+
+      function savePinataJwt() {
+        pinataJwt = $("pinataJwt").value.trim();
+        localStorage.setItem("pinata_jwt", pinataJwt);
+        $("pinataStatus").innerHTML = '<span class="pill ok">saved</span>';
+        log("Pinata JWT saved to localStorage", "info");
+      }
+
+      async function testPinata() {
+        if (!pinataJwt) {
+          $("pinataStatus").innerHTML =
+            '<span class="pill bad">no JWT set</span>';
+          return;
+        }
+        try {
+          const res = await fetch(PINATA_AUTH_URL, {
+            headers: { Authorization: `Bearer ${pinataJwt}` },
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          $("pinataStatus").innerHTML =
+            '<span class="pill ok">authenticated</span>';
+          log("Pinata authentication OK", "ok");
+        } catch (e) {
+          $("pinataStatus").innerHTML =
+            '<span class="pill bad">auth failed</span>';
+          logErr("testPinata", e);
+        }
+      }
+
+      async function pinFileToPinata(file) {
+        if (!pinataJwt)
+          throw new Error("Pinata JWT not set (see IPFS section)");
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("pinataMetadata", JSON.stringify({ name: file.name }));
+
+        log(
+          `Pinata: uploading ${file.name} (${(file.size / 1024).toFixed(1)} KB)…`,
+        );
+        const res = await fetch(PINATA_UPLOAD_URL, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${pinataJwt}` },
+          body: formData,
+        });
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`Pinata upload failed (${res.status}): ${text}`);
+        }
+        const json = await res.json();
+        log(`Pinata: pinned as ${json.IpfsHash}`, "ok");
+        return json.IpfsHash;
+      }
+
       // State
       let provider, signer, account, network;
       let addrs = JSON.parse(localStorage.getItem("hr_addrs") || "null");
       const contracts = {};
 
-      // Logging & helpers
+      // Helpers
       const $ = (id) => document.getElementById(id);
       const short = (a) =>
         !a || a === ethers.constants.AddressZero
@@ -701,6 +780,7 @@
           return receipt;
         } catch (e) {
           logErr(label, e);
+          throw e;
         }
       }
 
@@ -881,6 +961,8 @@
       $("connectBtn").onclick = connect;
       $("loadBtn").onclick = loadAddresses;
       $("clearBtn").onclick = clearCache;
+      $("savePinataBtn").onclick = savePinataJwt;
+      $("testPinataBtn").onclick = testPinata;
 
       // PATIENT
       $("registerPatientBtn").onclick = () =>
@@ -889,7 +971,7 @@
           contracts.patientRegistry.registerPatient(
             $("p_pubkey").value || "demo_pk",
           ),
-        );
+        ).catch(() => {});
 
       $("lookupSelfBtn").onclick = async () => {
         try {
@@ -911,12 +993,12 @@
         sendTx(
           "grantAccess",
           contracts.accessControl.grantAccess($("p_provider").value),
-        );
+        ).catch(() => {});
       $("revokeBtn").onclick = () =>
         sendTx(
           "revokeAccess",
           contracts.accessControl.revokeAccess($("p_provider").value),
-        );
+        ).catch(() => {});
 
       $("checkAccessBtn").onclick = async () => {
         try {
@@ -948,20 +1030,22 @@
         return out;
       }
 
+      // Returns HTML (clickable CIDs that point at the Pinata gateway).
       function formatRecords(records) {
         if (records.length === 0) return "(no records visible)";
         return records
-          .map(
-            (r) =>
-              `#${r.id}  cid=${r.cid}  provider=${short(r.provider)}  ts=${fmtTs(r.timestamp)}  prev=${r.previousVersion}  ${r.superseded ? "[superseded]" : "[current]"}`,
-          )
+          .map((r) => {
+            const url = `${PINATA_GATEWAY}${r.cid}`;
+            const status = r.superseded ? "[superseded]" : "[current]";
+            return `#${r.id}  <a href="${url}" target="_blank" rel="noopener">${r.cid}</a>  provider=${short(r.provider)}  ts=${fmtTs(r.timestamp)}  prev=${r.previousVersion}  ${status}`;
+          })
           .join("\n");
       }
 
       $("listMyRecordsBtn").onclick = async () => {
         $("p_records").textContent = "Loading…";
         try {
-          $("p_records").textContent = formatRecords(
+          $("p_records").innerHTML = formatRecords(
             await listRecordsByPatient(account),
           );
         } catch (e) {
@@ -969,24 +1053,63 @@
         }
       };
 
-      // PROVIDER
-      $("uploadRecordBtn").onclick = () =>
-        sendTx(
-          "uploadRecord",
-          contracts.recordManager.uploadRecord(
-            $("r_patient").value,
-            $("r_cid").value,
-          ),
-        );
+      // PROVIDER — upload now goes through Pinata first
+      $("uploadRecordBtn").onclick = async () => {
+        const file = $("r_file").files[0];
+        if (!file) {
+          log("No file selected", "bad");
+          return;
+        }
+        if (!ethers.utils.isAddress($("r_patient").value)) {
+          log("Invalid patient address", "bad");
+          return;
+        }
+        try {
+          $("r_progress").innerHTML =
+            '<span class="pill ok">uploading to Pinata…</span>';
+          const cid = await pinFileToPinata(file);
+          $("r_progress").innerHTML =
+            `<span class="pill ok">pinned</span> CID: <code>${cid}</code> — sending tx…`;
+          await sendTx(
+            "uploadRecord",
+            contracts.recordManager.uploadRecord($("r_patient").value, cid),
+          );
+          $("r_progress").innerHTML =
+            `<span class="pill ok">done</span> CID: <code>${cid}</code>`;
+          $("r_file").value = "";
+        } catch (e) {
+          $("r_progress").innerHTML = '<span class="pill bad">failed</span>';
+        }
+      };
 
-      $("updateRecordBtn").onclick = () =>
-        sendTx(
-          "updateRecord",
-          contracts.recordManager.updateRecord(
-            Number($("u_prevId").value),
-            $("u_cid").value,
-          ),
-        );
+      $("updateRecordBtn").onclick = async () => {
+        const file = $("u_file").files[0];
+        if (!file) {
+          log("No file selected", "bad");
+          return;
+        }
+        const prevId = Number($("u_prevId").value);
+        if (Number.isNaN(prevId) || prevId < 0) {
+          log("Invalid previous record id", "bad");
+          return;
+        }
+        try {
+          $("u_progress").innerHTML =
+            '<span class="pill ok">uploading to Pinata…</span>';
+          const cid = await pinFileToPinata(file);
+          $("u_progress").innerHTML =
+            `<span class="pill ok">pinned</span> CID: <code>${cid}</code> — sending tx…`;
+          await sendTx(
+            "updateRecord",
+            contracts.recordManager.updateRecord(prevId, cid),
+          );
+          $("u_progress").innerHTML =
+            `<span class="pill ok">done</span> CID: <code>${cid}</code>`;
+          $("u_file").value = "";
+        } catch (e) {
+          $("u_progress").innerHTML = '<span class="pill bad">failed</span>';
+        }
+      };
 
       $("viewPatientRecordsBtn").onclick = async () => {
         const p = $("v_patient").value;
@@ -996,7 +1119,7 @@
         }
         $("v_records").textContent = "Loading…";
         try {
-          $("v_records").textContent = formatRecords(
+          $("v_records").innerHTML = formatRecords(
             await listRecordsByPatient(p),
           );
         } catch (e) {
@@ -1012,13 +1135,13 @@
             $("h_provider").value,
             $("h_name").value,
           ),
-        );
+        ).catch(() => {});
 
       $("revokeProviderBtn").onclick = () =>
         sendTx(
           "revokeProvider",
           contracts.providerRegistry.revokeProvider($("h_provider").value),
-        );
+        ).catch(() => {});
 
       $("lookupProviderBtn").onclick = async () => {
         try {
@@ -1085,6 +1208,7 @@
           logErr("loadAuditSubject", e);
         }
       };
+
       $("loadAuditPartyBtn").onclick = async () => {
         const party = $("auditParty").value;
         if (!ethers.utils.isAddress(party)) {
@@ -1211,6 +1335,11 @@
         $("deployerAddr").value = addrs.deployer || "";
         renderAddrs();
         log("Restored cached addresses", "info");
+      }
+
+      if (pinataJwt) {
+        $("pinataJwt").value = pinataJwt;
+        $("pinataStatus").innerHTML = '<span class="pill ok">loaded</span>';
       }
     </script>
   </body>
