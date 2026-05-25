@@ -166,12 +166,58 @@
 
     <!-- PROVIDER TAB -->
     <div class="panel" id="provider">
-      <p class="placeholder">Provider panel</p>
+      <h4>Upload a new record</h4>
+      <div class="field">
+        <label>Patient address:</label>
+        <input id="r_patient" placeholder="0x..." />
+      </div>
+      <div class="field">
+        <label>CID:</label>
+        <input id="r_cid" placeholder="QmHash..." />
+      </div>
+      <button id="uploadRecordBtn">Upload</button>
+
+      <h4>Update an existing record</h4>
+      <div class="field">
+        <label>Previous record id:</label>
+        <input id="u_prevId" type="number" min="0" placeholder="0" />
+      </div>
+      <div class="field">
+        <label>New CID:</label>
+        <input id="u_cid" placeholder="QmHash..." />
+      </div>
+      <button id="updateRecordBtn">Update</button>
+
+      <h4>View patient records</h4>
+      <div class="field">
+        <label>Patient address:</label>
+        <input id="v_patient" placeholder="0x..." />
+      </div>
+      <button id="viewPatientRecordsBtn">View</button>
+      <pre id="v_records"></pre>
     </div>
 
     <!-- ADMIN TAB -->
     <div class="panel" id="admin">
-      <p class="placeholder">Hospital admin panel</p>
+      <h4>Register / re-activate a provider</h4>
+      <div class="field">
+        <label>Provider wallet:</label>
+        <input id="h_provider" placeholder="0x..." />
+      </div>
+      <div class="field">
+        <label>Name:</label>
+        <input id="h_name" placeholder="Dr Smith" />
+      </div>
+      <button id="registerProviderBtn">Register</button>
+      <button id="revokeProviderBtn">Revoke</button>
+
+      <h4>Lookup a provider</h4>
+      <div class="field">
+        <label>Provider address:</label>
+        <input id="h_lookupAddr" placeholder="0x..." />
+      </div>
+      <button id="lookupProviderBtn">Lookup</button>
+      <pre id="h_lookupResult"></pre>
     </div>
 
     <!-- AUDIT TAB -->
@@ -377,9 +423,9 @@
       // Logging & helpers
       const $ = (id) => document.getElementById(id);
       const short = (a) =>
-              !a || a === ethers.constants.AddressZero
-                ? "—"
-                : `${a.slice(0, 6)}…${a.slice(-4)}`;
+        !a || a === ethers.constants.AddressZero
+          ? "—"
+          : `${a.slice(0, 6)}…${a.slice(-4)}`;
 
       function ts() {
         const d = new Date();
@@ -404,7 +450,7 @@
         console.error(label, e);
       }
 
-      // 
+      //
       async function sendTx(label, txPromise) {
         try {
           log(`${label}: sending…`);
@@ -726,6 +772,72 @@
           $("p_records").textContent = formatRecords(records);
         } catch (e) {
           logErr("listMyRecords", e);
+        }
+      };
+
+      // PROVIDER HANDLER
+      $("uploadRecordBtn").onclick = () =>
+        sendTx(
+          "uploadRecord",
+          contracts.recordManager.uploadRecord(
+            $("r_patient").value,
+            $("r_cid").value,
+          ),
+        );
+
+      $("updateRecordBtn").onclick = () =>
+        sendTx(
+          "updateRecord",
+          contracts.recordManager.updateRecord(
+            Number($("u_prevId").value),
+            $("u_cid").value,
+          ),
+        );
+
+      $("viewPatientRecordsBtn").onclick = async () => {
+        const p = $("v_patient").value;
+        if (!ethers.utils.isAddress(p)) {
+          log("viewPatientRecords: invalid patient address", "bad");
+          return;
+        }
+        $("v_records").textContent = "Loading…";
+        try {
+          const records = await listRecordsByPatient(p);
+          $("v_records").textContent = formatRecords(records);
+        } catch (e) {
+          logErr("viewPatientRecords", e);
+        }
+      };
+
+
+      // HOSPITAL ADMIN HANDLER
+      $("registerProviderBtn").onclick = () =>
+        sendTx(
+          "registerProvider",
+          contracts.providerRegistry.registerProvider(
+            $("h_provider").value,
+            $("h_name").value,
+          ),
+        );
+
+      $("revokeProviderBtn").onclick = () =>
+        sendTx(
+          "revokeProvider",
+          contracts.providerRegistry.revokeProvider($("h_provider").value),
+        );
+
+      $("lookupProviderBtn").onclick = async () => {
+        try {
+          const p = await contracts.providerRegistry.getProvider(
+            $("h_lookupAddr").value,
+          );
+          $("h_lookupResult").textContent =
+            `wallet:  ${p.wallet}\n` +
+            `name:    ${p.name}\n` +
+            `active:  ${p.active}`;
+          log(`lookupProvider: name="${p.name}" active=${p.active}`, "ok");
+        } catch (e) {
+          logErr("lookupProvider", e);
         }
       };
 
