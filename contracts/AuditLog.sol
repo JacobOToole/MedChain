@@ -65,18 +65,10 @@ contract AuditLog {
     ) external onlyAuthorised {
         // pushes logEvent to array of logs
         logs.push(LogEntry(actor, subject, counterparty, action, block.timestamp));
-        // emits Logged event
-        // emit Logged(
-        //     logs.length - 1,
-        //     actor,
-        //     subject,
-        //     counterparty,
-        //     action, 
-        //     block.timestamp);
     }
 
     function getLogCount() external view returns (uint256) {
-        require(msg.sender == owner, "AuditLog: not authorised");
+        // require(msg.sender == owner, "AuditLog: not authorised");
         return logs.length;
     }
 

@@ -37,7 +37,7 @@
         color: #fff;
       }
       h1::after {
-        content: "  IFB452 project";
+        content: "  IFB452 project demo";
         font-size: 12px;
         font-weight: 400;
         color: #94a3b8;
@@ -511,10 +511,6 @@
       <h4>System status (Deployer.systemStatus)</h4>
       <button id="loadStatusBtn">Refresh status</button>
       <pre id="statusOut"></pre>
-
-      <h4>Wiring sanity checks</h4>
-      <button id="verifyBtn">Run checks</button>
-      <pre id="verifyOut"></pre>
     </div>
 
     <!-- ACTIVITY LOG -->
@@ -1030,7 +1026,7 @@
         return out;
       }
 
-      // Returns HTML (clickable CIDs that point at the Pinata gateway).
+      // Returns HTML (clickable CIDs that point at the Pinata gateway)
       function formatRecords(records) {
         if (records.length === 0) return "(no records visible)";
         return records
@@ -1253,64 +1249,6 @@
           );
         } catch (e) {
           logErr("loadStatus", e);
-        }
-      };
-
-      $("verifyBtn").onclick = async () => {
-        $("verifyOut").textContent = "Running checks…";
-        try {
-          const [
-            acAuthd,
-            rmAuthd,
-            auditOwner,
-            providerAdmin,
-            acPatientReg,
-            acProviderReg,
-            acAuditLog,
-            deployerAdmin,
-          ] = await Promise.all([
-            contracts.auditLog.authorisedCallers(addrs.accessControl),
-            contracts.auditLog.authorisedCallers(addrs.recordManager),
-            contracts.auditLog.owner(),
-            contracts.providerRegistry.hospitalAdmin(),
-            contracts.accessControl.patientRegistry(),
-            contracts.accessControl.providerRegistry(),
-            contracts.accessControl.auditLog(),
-            contracts.deployer.hospitalAdmin(),
-          ]);
-          const eq = (a, b) => a.toLowerCase() === b.toLowerCase();
-          const check = (label, pass) => `${pass ? "✓" : "✗"} ${label}`;
-          const results = [
-            ["AccessControl authorised on AuditLog", acAuthd],
-            ["RecordManager authorised on AuditLog", rmAuthd],
-            ["AuditLog owner = hospitalAdmin", eq(auditOwner, deployerAdmin)],
-            [
-              "ProviderRegistry admin = hospitalAdmin",
-              eq(providerAdmin, deployerAdmin),
-            ],
-            [
-              "AccessControl.patientRegistry  correct",
-              eq(acPatientReg, addrs.patientRegistry),
-            ],
-            [
-              "AccessControl.providerRegistry correct",
-              eq(acProviderReg, addrs.providerRegistry),
-            ],
-            [
-              "AccessControl.auditLog         correct",
-              eq(acAuditLog, addrs.auditLog),
-            ],
-          ];
-          $("verifyOut").textContent = results
-            .map(([l, p]) => check(l, p))
-            .join("\n");
-          const passed = results.filter(([, p]) => p).length;
-          log(
-            `Wiring checks: ${passed}/${results.length} passed`,
-            passed === results.length ? "ok" : "bad",
-          );
-        } catch (e) {
-          logErr("verifyWiring", e);
         }
       };
 

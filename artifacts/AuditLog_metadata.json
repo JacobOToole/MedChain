@@ -371,11 +371,11 @@
 	},
 	"sources": {
 		"contracts/AuditLog.sol": {
-			"keccak256": "0xcef30df1bf0dc9d24e23d738a226cc7bc885508f336747166da8d2fd9eeee89c",
+			"keccak256": "0x3a3ac93d458548f85ca7082399b9021399b073a6dcb3cb16adac573264a2d24d",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://21d7581424b0803713efb8a096f0e4fefe37c3b2ecd632fa089a9c6ad9201e48",
-				"dweb:/ipfs/QmdjiCFvTqbcYXJNPV1WqBHEsw9b27VGakQjDHEKVzncAg"
+				"bzz-raw://685086c1a113befa33fe42b398079bed685e55af2c134e428ed59cb53733dd56",
+				"dweb:/ipfs/QmZZ69mHRqnzzj32pxPyQmy58jMnTVJ4oE6s3EAYU5L82M"
 			]
 		}
 	},
